@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 import json
 import os
 import random
+import unicodedata
+import html
 scraper = cloudscraper.create_scraper()
 
 """
@@ -13,6 +15,52 @@ Module này dùng để gửi yêu cầu trích xuất urls từ một đường
      - Hàm trả về False, có nghĩa là url không thuộc url gốc, thường là bỏ qua.
      - Hàm trẻ về chuỗi "ERROR" tức là có lỗi trong quá trình crawl và xử lý.
 """
+
+def normalize_text(text):
+    text = html.unescape(text)
+    text = unicodedata.normalize("NFKC", text)
+    table = str.maketrans({
+        "“": '"',
+        "”": '"',
+        "‘": "'",
+        "’": "'",
+        "–": "-",
+        "—": "-",
+        "…": "...",
+    })
+    return text.translate(table)
+
+def get_text(html_content: str, min_length: int = 300):
+    soup = BeautifulSoup(html_content, "html.parser")
+    tags = soup.find_all(["h1","h2","h3","h4","h5","h6","p"])
+    total_text = str()
+    for tag in tags:
+        text = tag.get_text(strip=True)
+        if text == "":
+            continue
+        if tag.get_text(strip=False)[-1] == "\n":
+            text = text + "\n"
+        if tag.name == "h1":
+            text = "# " + text
+        elif tag.name == "h2":
+            text = "## " + text
+        elif tag.name == "h3":
+            text = "### " + text
+        elif tag.name == "h4":
+            text = "#### " + text
+        elif tag.name == "h5":
+            text = "##### " + text
+        elif tag.name == "h6":
+            text = "###### " + text
+        total_text += text + "\n"
+    total_text = total_text.strip()
+    total_text = normalize_text(total_text)
+    input(len(total_text.split(" ")))
+    if len(total_text.split(" ")) < min_length:
+        return False
+    return total_text
+
+
 
 class UrlExtractorCrawler:
     def __init__(self, source_url: str, folder_path: str = "./url_extract_crawler_metadata", metadata_path: str = "metadata.json", metadata_write_delay=64):
@@ -76,8 +124,8 @@ class UrlExtractorCrawler:
 
 if __name__ == "__main__":
     import time
-    u = UrlExtractorCrawler("https://vietnamnet.vn/", metadata_write_delay=2)
+    u = UrlExtractorCrawler("https://vnexpress.net/", metadata_write_delay=2)
     while True:
-        urls = u.requests_and_extract_urls_incontent()
-        print(urls[1])
-        time.sleep(1)
+        pack = u.requests_and_extract_urls_incontent()
+        input(get_text(pack[1]))
+        os.system("cls")
