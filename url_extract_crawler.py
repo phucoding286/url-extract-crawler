@@ -55,7 +55,7 @@ def get_text(html_content: str, min_length: int = 300):
         total_text += text + "\n"
     total_text = total_text.strip()
     total_text = normalize_text(total_text)
-    input(len(total_text.split(" ")))
+    # input(len(total_text.split(" ")))
     if len(total_text.split(" ")) < min_length:
         return False
     return total_text
