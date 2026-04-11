@@ -118,7 +118,7 @@ class UrlExtractorCrawler:
             urls_extracted = list(urls_extracted)
             self.metadata['previous_url'] = random.choice(urls_extracted)
             self.auto_write_metadata()
-            return urls_extracted, website_content
+            return urls_extracted, url, website_content
         except:
             return "ERROR"
 
