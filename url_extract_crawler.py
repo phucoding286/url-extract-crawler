@@ -73,7 +73,7 @@ class UrlExtractorCrawler:
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36"
         }
         self.metadata = {
-            "previous_url": source_url
+            "previous_url": [source_url]
         }
         self.init_folder_files()
 
@@ -92,7 +92,7 @@ class UrlExtractorCrawler:
                 json.dump(self.metadata, file, indent=4, ensure_ascii=False)
 
     def requests_and_extract_urls_incontent(self):
-        url = self.metadata['previous_url']
+        url = random.choice(self.metadata['previous_url'])
         if not url.startswith(self.source_url):
             return False
         try:
@@ -116,8 +116,8 @@ class UrlExtractorCrawler:
                         u = self.source_url[:-1] + "/" + u
                         urls_extracted.add(u)
             urls_extracted = list(urls_extracted)
-            self.metadata['previous_url'] = random.choice(urls_extracted)
             self.auto_write_metadata()
+            self.metadata['previous_url'] = urls_extracted
             return urls_extracted, url, website_content
         except:
             return "ERROR"
