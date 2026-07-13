@@ -35,7 +35,7 @@ def normalize_text(text):
 
 def get_text(html_content: str, min_length: int = 300):
     soup = BeautifulSoup(html_content, "html.parser")
-    tags = soup.find_all(["h1","h2","h3","h4","h5","h6","p"])
+    tags = soup.find_all(["h1","h2","h3","h4","h5","h6","p", "div"])
     total_text = str()
     for tag in tags:
         text = tag.get_text(strip=True)
