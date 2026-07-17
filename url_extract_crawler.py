@@ -1,7 +1,7 @@
 import cloudscraper
 from bs4 import BeautifulSoup
 import json
-import os
+import os, sys
 import random
 import unicodedata
 import html
@@ -79,7 +79,9 @@ class UrlExtractorCrawler:
         
         try:
             urls_extracted = set()
+            sys.stdout = open(os.devnull, "w")
             response = tls_requests.get(url=url, tls_identifier=tls_requests.TLSIdentifierRotator(), timeout=10)
+            sys.stdout = sys.__stdout__
             if not response.headers['content-type'].startswith("text/html"):
                 return "ERROR"
             website_content = response.text
