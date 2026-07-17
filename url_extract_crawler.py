@@ -5,10 +5,7 @@ import os
 import random
 import unicodedata
 import html
-# pip install fake-useragent
-from fake_useragent import UserAgent
-ua = UserAgent()
-scraper = cloudscraper.create_scraper()
+import tls_requests
 
 """
 Module này dùng để gửi yêu cầu trích xuất urls từ một đường dẫn trang web cụ thể, sau đó trả về content và các urls liên quan trong content hiện tại.
@@ -82,8 +79,7 @@ class UrlExtractorCrawler:
         
         try:
             urls_extracted = set()
-            self.headers['user-agent'] = ua.random
-            response = scraper.get(url=url, headers=self.headers, timeout=10)
+            response = tls_requests.get(url=url, tls_identifier=tls_requests.TLSIdentifierRotator(), timeout=10)
             if not response.headers['content-type'].startswith("text/html"):
                 return "ERROR"
             website_content = response.text
