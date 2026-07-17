@@ -6,6 +6,7 @@ import random
 import unicodedata
 import html
 import tls_requests
+import contextlib
 
 """
 Module này dùng để gửi yêu cầu trích xuất urls từ một đường dẫn trang web cụ thể, sau đó trả về content và các urls liên quan trong content hiện tại.
@@ -79,9 +80,13 @@ class UrlExtractorCrawler:
         
         try:
             urls_extracted = set()
-            sys.stdout = open(os.devnull, "w")
-            response = tls_requests.get(url=url, tls_identifier=tls_requests.TLSIdentifierRotator(), timeout=10)
-            sys.stdout = sys.__stdout__
+            with open(os.devnull, "w") as fnull:
+                with contextlib.redirect_stdout(fnull):
+                    response = tls_requests.get(
+                        url=url, 
+                        tls_identifier=tls_requests.TLSIdentifierRotator(), 
+                        timeout=10
+                    )
             if not response.headers['content-type'].startswith("text/html"):
                 return "ERROR"
             website_content = response.text
