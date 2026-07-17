@@ -45,6 +45,7 @@ def get_text(html_content: str, min_length: int = 300):
 
 class UrlExtractorCrawler:
     def __init__(self, source_url: str, folder_path: str = "./url_extract_crawler_metadata", metadata_path: str = "metadata.json", metadata_write_delay=64, limit_metadata_log_context=10000):
+        source_url = source_url.strip("/")
         self.source_url = source_url
         self.folder_path = folder_path
         self.metadata_path = folder_path + "/" + metadata_path
@@ -76,12 +77,6 @@ class UrlExtractorCrawler:
     def requests_and_extract_urls_incontent(self):
         url = random.choice(self.metadata['previous_url'])
 
-        url = url.strip().split("?")[0].split("#")[0]
-        if url[-1] == "/":
-            while url[-1] == "/":
-                url = url[:-1]
-            url = url + "/"
-
         if not url.startswith(self.source_url):
             return False
         
@@ -102,12 +97,13 @@ class UrlExtractorCrawler:
                 if u.startswith(self.source_url):
                     urls_extracted.add(u)
                 elif "/" in u and not u.startswith("https://"):
-                    if self.source_url.endswith("/") and u.startswith("/"):
-                        u = self.source_url[:-1] + u
+                    if u.startswith("/"):
+                        u = self.source_url + u
                         urls_extracted.add(u)
-                    elif not self.source_url.endswith("/") and not u.startswith("/"):
-                        u = self.source_url[:-1] + "/" + u
+                    elif not u.startswith("/") and u[0] in list("qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890"):
+                        u = self.source_url + "/" + u
                         urls_extracted.add(u)
+
             urls_extracted = list(urls_extracted)
             urls_combined = urls_extracted + self.metadata["previous_url"]
             random.shuffle(urls_combined)
